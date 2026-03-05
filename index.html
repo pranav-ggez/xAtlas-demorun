@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>xAtlas — 3D Open Source Galaxy</title>
+  <style>
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+    body { 
+      overflow: hidden; 
+      background: #000;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      touch-action: none;
+    }
+
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .ui-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: clamp(1rem, 3vw, 1.5rem) clamp(1.5rem, 4vw, 2rem);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .ui-overlay > * {
+      pointer-events: auto;
+    }
+
+    h1 { 
+      font-size: clamp(1.2rem, 3.5vw, 1.5rem); 
+      font-weight: 600; 
+      color: #3b82f6;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+
+    .quote {
+      font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+      color: #666;
+      font-style: italic;
+      text-align: right;
+      max-width: clamp(200px, 40vw, 400px);
+    }
+
+    .back-btn {
+      display: none;
+      position: fixed;
+      top: clamp(1rem, 3vw, 1.5rem);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid #3b82f6;
+      color: #3b82f6;
+      padding: clamp(0.4rem, 2vw, 0.5rem) clamp(1rem, 3vw, 1.5rem);
+      border-radius: 30px;
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 150;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+      pointer-events: auto;
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .back-btn.visible {
+      display: flex;
+      animation: slideDown 0.3s ease;
+    }
+
+    .back-btn:hover, .back-btn:active {
+      background: rgba(59, 130, 246, 0.4);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    }
+
+    @keyframes slideDown {
+      from { transform: translate(-50%, -20px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    .controls-hint {
+      position: fixed;
+      bottom: clamp(1rem, 3vw, 2rem);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(10px);
+      padding: clamp(0.6rem, 2.5vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+      border-radius: 30px;
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+      color: #888;
+      border: 1px solid #222;
+      z-index: 100;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      max-width: 90vw;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .hud-tooltip {
+      position: fixed;
+      display: none;
+      background: rgba(10, 10, 10, 0.95);
+      border: 1px solid #3b82f6;
+      padding: clamp(0.8rem, 2.5vw, 1rem);
+      border-radius: 8px;
+      min-width: clamp(200px, 60vw, 220px);
+      pointer-events: auto;
+      z-index: 200;
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+      backdrop-filter: blur(10px);
+      transform: translate(15px, 15px);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .hud-tooltip.active {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .hud-tooltip:hover, .hud-tooltip:active {
+      border-color: #60a5fa;
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.5);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(15px, 20px); }
+      to { opacity: 1; transform: translate(15px, 15px); }
+    }
+
+    .hud-title {
+      color: #3b82f6;
+      font-weight: 600;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+      margin-bottom: 0.5rem;
+    }
+
+    .hud-stat {
+      display: flex;
+      justify-content: space-between;
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+      color: #999;
+      margin-bottom: 0.25rem;
+    }
+
+    .hud-stat span:last-child {
+      color: #e5e5e5;
+      font-weight: 500;
+    }
+
+    .hud-license {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      padding: clamp(0.15rem, 1.5vw, 0.2rem) clamp(0.4rem, 2vw, 0.5rem);
+      border-radius: 4px;
+      font-size: clamp(0.65rem, 2.3vw, 0.7rem);
+      margin-top: 0.5rem;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .hud-click-hint {
+      margin-top: 0.5rem;
+      font-size: clamp(0.65rem, 2.3vw, 0.7rem);
+      color: #666;
+      text-align: center;
+      font-style: italic;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(10px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+
+    .modal.active { 
+      display: flex; 
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+      border: 1px solid #333;
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+      border-radius: 12px;
+      max-width: 500px;
+      width: 95%;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8);
+      animation: slideUp 0.3s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      cursor: pointer;
+      color: #444;
+      transition: color 0.2s;
+      line-height: 1;
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover, .close-btn:active { 
+      color: #fff; 
+    }
+
+    .tool-title { 
+      color: #3b82f6; 
+      margin-bottom: 0.5rem; 
+      font-size: clamp(1.3rem, 4.5vw, 1.75rem);
+      font-weight: 600;
+    }
+
+    .tool-type {
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+      color: #10b981;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+    }
+
+    .tool-desc {
+      color: #999;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      font-size: clamp(0.85rem, 3vw, 0.95rem);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(0.5rem, 2vw, 1rem);
+      margin-bottom: 1.5rem;
+    }
+
+    .info-box {
+      background: rgba(255,255,255,0.03);
+      padding: clamp(0.7rem, 2.5vw, 1rem);
+      border-radius: 8px;
+      border: 1px solid #222;
+    }
+
+    .info-label {
+      font-size: clamp(0.6rem, 2.2vw, 0.7rem);
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+      color: #e5e5e5;
+      font-weight: 600;
+      font-size: clamp(0.8rem, 2.8vw, 0.9rem);
+    }
+
+    .alt-box {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid #f59e0b;
+      padding: clamp(0.7rem, 2.5vw, 1rem);
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+    }
+
+    .alt-label {
+      font-size: clamp(0.6rem, 2.2vw, 0.7rem);
+      color: #b45309;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .alt-name {
+      color: #fbbf24;
+      font-weight: 600;
+      font-size: clamp(0.85rem, 3vw, 0.95rem);
+    }
+
+    .difficulty {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .difficulty-bar {
+      flex: 1;
+      height: 6px;
+      background: #222;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .difficulty-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .difficulty-fill.easy { background: #10b981; }
+    .difficulty-fill.medium { background: #f59e0b; }
+    .difficulty-fill.hard { background: #ef4444; }
+
+    .link-btn {
+      display: inline-block;
+      background: #3b82f6;
+      color: white;
+      padding: clamp(0.6rem, 2.5vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: clamp(0.8rem, 2.8vw, 0.9rem);
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .link-btn:hover, .link-btn:active { 
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      transition: opacity 0.5s;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-text {
+      color: #f59e0b;
+      font-size: clamp(1.2rem, 4vw, 1.5rem);
+      font-weight: 600;
+      animation: pulse 1.5s infinite;
+      text-align: center;
+      padding: 0 1rem;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @media (max-width: 768px) {
+      .ui-overlay {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .quote {
+        text-align: left;
+      }
+      .controls-hint {
+        font-size: 0.75rem;
+        padding: 0.6rem 1rem;
+      }
+    }
+
+    #nebula-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="loading" id="loading">
+    <div class="loading-text">Initializing Living Cosmos...</div>
+  </div>
+
+  <canvas id="nebula-canvas"></canvas>
+  
+  <div id="canvas-container"></div>
+
+  <button class="back-btn" id="backBtn">← Back to Galaxy</button>
+
+  <div class="hud-tooltip" id="hudTooltip">
+    <div class="hud-title" id="hudTitle">Tool Name</div>
+    <div class="hud-stat">
+      <span>License</span>
+      <span id="hudLicense">MIT</span>
+    </div>
+    <div class="hud-stat">
+      <span>Difficulty</span>
+      <span id="hudDifficulty">Easy</span>
+    </div>
+    <div class="hud-license" id="hudLicenseBadge">Open Source</div>
+    <div class="hud-click-hint">Double-tap for full dossier →</div>
+  </div>
+
+  <div class="ui-overlay">
+    <h1>🗺️ xAtlas</h1>
+    <div class="quote" id="quote">"Open source is the only way to audit what you run."</div>
+  </div>
+
+  <div class="controls-hint" id="controlsHint">
+    🖱️ Double-click/Tap planet to focus • Double-tap tools for info • Pinch to zoom • Drag to rotate
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <div class="tool-type">Open Source Tool</div>
+      <h2 class="tool-title" id="modalTitle">Tool Name</h2>
+      <p class="tool-desc" id="modalDesc">Description goes here.</p>
+      
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-label">License</div>
+          <div class="info-value" id="modalLicense">MIT</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Domain</div>
+          <div class="info-value" id="modalDomain">Network</div>
+        </div>
+      </div>
+
+      <div class="alt-box">
+        <div class="alt-label">Proprietary Alternative</div>
+        <div class="alt-name" id="modalAlt">ClosedTool Pro</div>
+      </div>
+
+      <div class="difficulty">
+        <span style="color:#888;font-size:0.85rem;">Migration:</span>
+        <div class="difficulty-bar">
+          <div class="difficulty-fill" id="difficultyBar" style="width: 50%"></div>
+        </div>
+        <span id="modalDifficulty" style="color:#e5e5e5;font-size:0.85rem;">Medium</span>
+      </div>
+
+      <p style="color:#666;font-size:0.85rem;margin-bottom:1.5rem;" id="modalTip">Tip goes here.</p>
+
+      <a href="#" class="link-btn" id="modalLink" target="_blank">Visit Official Site</a>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <script>
+    const galaxyData = {
+      domains: [
+        { id: 'network', name: 'Network Analysis', color: 0x3b82f6, position: { x: -35, y: 0, z: 0 }, tools: [
+          { id: 'wireshark', name: 'Wireshark', desc: 'Network protocol analyzer for deep packet inspection.', license: 'GPL-2.0', alt: 'SolarWinds NPM', difficulty: 'medium', tip: 'Use tshark for CLI automation.', link: 'https://wireshark.org', orbitRadius: 10, orbitSpeed: 0.5 },
+          { id: 'nmap', name: 'Nmap', desc: 'Network discovery and security auditing tool.', license: 'GPL-2.0', alt: 'Advanced IP Scanner', difficulty: 'easy', tip: 'Start with -sV for version detection.', link: 'https://nmap.org', orbitRadius: 8, orbitSpeed: 0.8 }
+        ]},
+        { id: 'forensics', name: 'Digital Forensics', color: 0x8b5cf6, position: { x: 35, y: 0, z: 0 }, tools: [
+          { id: 'autopsy', name: 'Autopsy', desc: 'Digital forensics platform.', license: 'Apache-2.0', alt: 'EnCase Forensic', difficulty: 'medium', tip: 'Supports Windows image analysis.', link: 'https://autopsy.com', orbitRadius: 10, orbitSpeed: 0.6 },
+          { id: 'volatility', name: 'Volatility', desc: 'Advanced memory forensics framework.', license: 'GPL-2.0', alt: 'Magnet RAM Capture', difficulty: 'hard', tip: 'Requires command line proficiency.', link: 'https://volatilityfoundation.org', orbitRadius: 9, orbitSpeed: 0.4 }
+        ]},
+        { id: 'web', name: 'Web Recon', color: 0x10b981, position: { x: 0, y: 0, z: -35 }, tools: [
+          { id: 'owasp', name: 'OWASP ZAP', desc: 'Free open source penetration testing tool.', license: 'Apache-2.0', alt: 'Burp Suite Pro', difficulty: 'easy', tip: 'Fully open source alternative.', link: 'https://zaproxy.org', orbitRadius: 10, orbitSpeed: 0.7 },
+          { id: 'wpscan', name: 'WPScan', desc: 'WordPress vulnerability scanner.', license: 'GPL-3.0', alt: 'WPScan Commercial', difficulty: 'easy', tip: 'Use --enumerate for plugins.', link: 'https://wpscan.com', orbitRadius: 8, orbitSpeed: 0.9 }
+        ]},
+        { id: 'crypto', name: 'Cryptography', color: 0xf59e0b, position: { x: 0, y: 0, z: 35 }, tools: [
+          { id: 'veracrypt', name: 'VeraCrypt', desc: 'Free open source disk encryption.', license: 'TrueCrypt License', alt: 'BitLocker', difficulty: 'easy', tip: 'Successor to TrueCrypt.', link: 'https://veracrypt.fr', orbitRadius: 10, orbitSpeed: 0.5 },
+          { id: 'gpg', name: 'GnuPG', desc: 'Complete OpenPGP implementation.', license: 'GPL-3.0', alt: 'PGP Corporation', difficulty: 'medium', tip: 'Standard for email encryption.', link: 'https://gnupg.org', orbitRadius: 9, orbitSpeed: 0.6 }
+        ]},
+        { id: 'ai-ml', name: 'AI & Machine Learning', color: 0x06b6d4, position: { x: -25, y: 0, z: -25 }, tools: [
+          { id: 'langgraph', name: 'LangGraph', desc: 'Build stateful, multi-actor applications with LLMs.', license: 'MIT', alt: 'LangChain Cloud', difficulty: 'medium', tip: 'Perfect for building complex agent workflows.', link: 'https://langchain-ai.github.io/langgraph/', orbitRadius: 10, orbitSpeed: 0.6 },
+          { id: 'crewai', name: 'CrewAI', desc: 'Framework for orchestrating role-playing AI agents.', license: 'MIT', alt: 'AutoGen', difficulty: 'easy', tip: 'Define agent roles and goals for autonomous collaboration.', link: 'https://www.crewai.com', orbitRadius: 8, orbitSpeed: 0.8 }
+        ]},
+        { id: 'devops', name: 'DevOps & CI/CD', color: 0xec4899, position: { x: 25, y: 0, z: -25 }, tools: [
+          { id: 'github-actions', name: 'GitHub Actions', desc: 'Automate workflows directly in GitHub.', license: 'MIT', alt: 'Jenkins', difficulty: 'easy', tip: 'Start with workflow YAML in .github/workflows/', link: 'https://github.com/features/actions', orbitRadius: 10, orbitSpeed: 0.7 },
+          { id: 'circleci', name: 'CircleCI', desc: 'Cloud-based CI/CD platform for automated pipelines.', license: 'Proprietary (Free Tier)', alt: 'GitLab CI', difficulty: 'medium', tip: 'Use config.yml for pipeline configuration.', link: 'https://circleci.com', orbitRadius: 8, orbitSpeed: 0.9 }
+        ]},
+        { id: 'containers', name: 'Containers & Cloud', color: 0x6366f1, position: { x: 25, y: 0, z: 25 }, tools: [
+          { id: 'docker', name: 'Docker', desc: 'Platform for developing, shipping, and running applications in containers.', license: 'Apache-2.0', alt: 'Podman', difficulty: 'medium', tip: 'Use Dockerfile for reproducible builds.', link: 'https://docker.com', orbitRadius: 10, orbitSpeed: 0.5 },
+          { id: 'kubernetes', name: 'Kubernetes', desc: 'Container orchestration system for automating deployment.', license: 'Apache-2.0', alt: 'Docker Swarm', difficulty: 'hard', tip: 'Start with minikube for local development.', link: 'https://kubernetes.io', orbitRadius: 9, orbitSpeed: 0.4 }
+        ]},
+        { id: 'data-eng', name: 'Data Engineering', color: 0x14b8a6, position: { x: -25, y: 0, z: 25 }, tools: [
+          { id: 'airflow', name: 'Apache Airflow', desc: 'Platform to programmatically author, schedule, and monitor data pipelines.', license: 'Apache-2.0', alt: 'Prefect', difficulty: 'medium', tip: 'Define DAGs in Python for workflow orchestration.', link: 'https://airflow.apache.org', orbitRadius: 10, orbitSpeed: 0.6 },
+          { id: 'dbt', name: 'dbt (data build tool)', desc: 'Transformation workflow for analytics engineering.', license: 'Apache-2.0', alt: 'Dataform', difficulty: 'easy', tip: 'Use dbt models for version-controlled SQL transformations.', link: 'https://getdbt.com', orbitRadius: 8, orbitSpeed: 0.8 }
+        ]}
+      ]
+    };
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, 0.008);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+    camera.position.set(0, 80, 120);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 10;
+    controls.maxDistance = 300;
+    controls.rotateSpeed = 0.5;
+    controls.zoomSpeed = 0.6;
+    controls.panSpeed = 0.5;
+    controls.enablePan = false;
+
+    const ambientLight = new THREE.AmbientLight(0x404040, 1.5);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.PointLight(0xf59e0b, 2, 300);
+    sunLight.position.set(0, 0, 0);
+    scene.add(sunLight);
+
+    const gridHelper = new THREE.GridHelper(500, 50, 0x222222, 0x111111);
+    gridHelper.position.y = -15;
+    scene.add(gridHelper);
+
+    const nebulaCanvas = document.getElementById('nebula-canvas');
+    const nebulaCtx = nebulaCanvas.getContext('2d');
+    
+    function resizeNebula() {
+      nebulaCanvas.width = window.innerWidth;
+      nebulaCanvas.height = window.innerHeight;
+    }
+    resizeNebula();
+    window.addEventListener('resize', resizeNebula);
+
+    const nebulaParticles = [];
+    const nebulaColors = [
+      { r: 59, g: 130, b: 246 },
+      { r: 139, g: 92, b: 246 },
+      { r: 16, g: 185, b: 129 },
+      { r: 245, g: 158, b: 11 }
+    ];
+
+    for (let i = 0; i < 50; i++) {
+      nebulaParticles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        radius: Math.random() * 80 + 40,
+        color: nebulaColors[Math.floor(Math.random() * nebulaColors.length)],
+        opacity: Math.random() * 0.15 + 0.05,
+        speedX: (Math.random() - 0.5) * 0.02,
+        speedY: (Math.random() - 0.5) * 0.02,
+        pulse: Math.random() * Math.PI * 2
+      });
+    }
+
+    function animateNebula() {
+      nebulaCtx.clearRect(0, 0, nebulaCanvas.width, nebulaCanvas.height);
+      
+      nebulaParticles.forEach(p => {
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.pulse += 0.01;
+        
+        if (p.x < -p.radius) p.x = nebulaCanvas.width + p.radius;
+        if (p.x > nebulaCanvas.width + p.radius) p.x = -p.radius;
+        if (p.y < -p.radius) p.y = nebulaCanvas.height + p.radius;
+        if (p.y > nebulaCanvas.height + p.radius) p.y = -p.radius;
+        
+        const pulseOpacity = p.opacity + Math.sin(p.pulse) * 0.03;
+        
+        const gradient = nebulaCtx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+        gradient.addColorStop(0, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${pulseOpacity})`);
+        gradient.addColorStop(0.5, `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${pulseOpacity * 0.5})`);
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        
+        nebulaCtx.fillStyle = gradient;
+        nebulaCtx.beginPath();
+        nebulaCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        nebulaCtx.fill();
+      });
+      
+      requestAnimationFrame(animateNebula);
+    }
+    animateNebula();
+
+    function createStarfield() {
+      const starsGeometry = new THREE.BufferGeometry();
+      const starsMaterial = new THREE.PointsMaterial({ 
+        color: 0xffffff, 
+        size: 0.25, 
+        transparent: true, 
+        opacity: 0.95,
+        sizeAttenuation: true
+      });
+      const starsVertices = [];
+      for (let i = 0; i < 12000; i++) {
+        starsVertices.push(
+          (Math.random() - 0.5) * 600, 
+          (Math.random() - 0.5) * 600, 
+          (Math.random() - 0.5) * 600
+        );
+      }
+      starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+      return new THREE.Points(starsGeometry, starsMaterial);
+    }
+    const starField = createStarfield();
+    scene.add(starField);
+
+    const sunGeometry = new THREE.SphereGeometry(5, 64, 64);
+    const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.95 });
+    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    
+    const sunGlows = [];
+    for (let i = 0; i < 4; i++) {
+      const glow = new THREE.Mesh(
+        new THREE.SphereGeometry(6 + i * 1.5, 32, 32),
+        new THREE.MeshBasicMaterial({ 
+          color: 0xf59e0b, 
+          transparent: true, 
+          opacity: 0.35 - i * 0.08, 
+          side: THREE.BackSide 
+        })
+      );
+      glow.userData = { baseScale: 1 + i * 0.1, pulseSpeed: 0.02 + i * 0.005, pulsePhase: i };
+      sun.add(glow);
+      sunGlows.push(glow);
+    }
+    
+    const sunCanvas = document.createElement('canvas');
+    const sunContext = sunCanvas.getContext('2d');
+    sunCanvas.width = 256;
+    sunCanvas.height = 64;
+    sunContext.fillStyle = '#f59e0b';
+    sunContext.font = 'Bold 32px Inter';
+    sunContext.textAlign = 'center';
+    sunContext.fillText('xAtlas Core', 128, 32);
+    const sunTexture = new THREE.CanvasTexture(sunCanvas);
+    const sunSpriteMaterial = new THREE.SpriteMaterial({ map: sunTexture, transparent: true, opacity: 0.95 });
+    const sunSprite = new THREE.Sprite(sunSpriteMaterial);
+    sunSprite.position.y = 8;
+    sunSprite.scale.set(12, 3, 1);
+    sun.add(sunSprite);
+    
+    scene.add(sun);
+
+    const planets = [];
+    const moons = [];
+    const moonLabels = [];
+    let focusedPlanetIndex = null;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    const planetGeometry = new THREE.SphereGeometry(3.5, 32, 32);
+    const moonGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+
+    function createGlow(color, size, opacity = 0.3) {
+      const glowGeometry = new THREE.SphereGeometry(size, 32, 32);
+      const glowMaterial = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, side: THREE.BackSide });
+      return new THREE.Mesh(glowGeometry, glowMaterial);
+    }
+
+    function createTextSprite(message, parameters) {
+      if (parameters === undefined) parameters = {};
+      const font = parameters.font || "Bold 36px Inter";
+      const fillColor = parameters.fillColor || { r: 255, g: 255, b: 255, a: 1.0 };
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      context.font = font;
+      const metrics = context.measureText(message);
+      canvas.width = metrics.width + 30;
+      canvas.height = 50;
+      context.font = font;
+      context.fillStyle = `rgba(${fillColor.r}, ${fillColor.g}, ${fillColor.b}, ${fillColor.a})`;
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText(message, canvas.width / 2, canvas.height / 2);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.98 });
+      const sprite = new THREE.Sprite(spriteMaterial);
+      sprite.scale.set(canvas.width / 8, canvas.height / 8, 1);
+      return sprite;
+    }
+
+    galaxyData.domains.forEach((domain, index) => {
+      const planetMaterial = new THREE.MeshStandardMaterial({
+        color: domain.color, metalness: 0.4, roughness: 0.3, emissive: domain.color, emissiveIntensity: 0.35
+      });
+      const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+      planet.position.set(domain.position.x, domain.position.y, domain.position.z);
+      planet.userData = { type: 'planet', domain: domain, index: index };
+      
+      const atmosphere = createGlow(domain.color, 4.8, 0.25);
+      atmosphere.userData = { baseOpacity: 0.25, pulseSpeed: 0.03, pulsePhase: index * 0.5 };
+      planet.add(atmosphere);
+      planet.add(createGlow(domain.color, 4.5, 0.4));
+      
+      const planetLabel = createTextSprite(domain.name, { fillColor: { r: 255, g: 255, b: 255, a: 1.0 }, font: "Bold 28px Inter" });
+      planetLabel.position.y = 5.5;
+      planet.add(planetLabel);
+
+      scene.add(planet);
+      planets.push({ mesh: planet, material: planetMaterial, atmosphere, moons: [] });
+
+      domain.tools.forEach((tool, toolIndex) => {
+        const moonMaterial = new THREE.MeshStandardMaterial({
+          color: 0x10b981, metalness: 0.6, roughness: 0.2, emissive: 0x10b981, emissiveIntensity: 0.45
+        });
+        const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+        moon.userData = { type: 'moon', tool: tool, domain: domain, planetIndex: index };
+        
+        const moonGlow = createGlow(0x10b981, 1.7, 0.45);
+        moonGlow.userData = { baseOpacity: 0.45, pulseSpeed: 0.05, pulsePhase: toolIndex };
+        moon.add(moonGlow);
+
+        const moonLabel = createTextSprite(tool.name, { fillColor: { r: 200, g: 200, b: 200, a: 0.95 }, font: "Bold 24px Inter" });
+        moonLabel.position.y = 2;
+        moonLabel.scale.set(0.7, 0.7, 0.7);
+        moon.add(moonLabel);
+        moonLabels.push({ sprite: moonLabel, mesh: moon });
+
+        const orbitCurve = new THREE.EllipseCurve(0, 0, tool.orbitRadius, tool.orbitRadius, 0, 2 * Math.PI, false, 0);
+        const points = orbitCurve.getPoints(64);
+        const orbitGeometry = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(p.x, 0, p.y)));
+        const orbitMaterial = new THREE.LineBasicMaterial({ color: domain.color, transparent: true, opacity: 0.25 });
+        const orbit = new THREE.LineLoop(orbitGeometry, orbitMaterial);
+        orbit.rotation.x = Math.PI / 2;
+        scene.add(orbit);
+
+        planet.add(moon);
+        moons.push({
+          mesh: moon, material: moonMaterial, glow: moonGlow, orbitRadius: tool.orbitRadius,
+          orbitSpeed: tool.orbitSpeed, angle: (toolIndex / domain.tools.length) * Math.PI * 2, tool: tool
+        });
+        planets[index].moons.push(moons[moons.length - 1]);
+      });
+    });
+
+    const backBtn = document.getElementById('backBtn');
+    const controlsHint = document.getElementById('controlsHint');
+
+    function setFocus(planetIndex) {
+      focusedPlanetIndex = planetIndex;
+      backBtn.classList.add('visible');
+      controlsHint.style.opacity = '0';
+
+      planets.forEach((p, i) => {
+        const isFocused = i === planetIndex;
+        const targetOpacity = isFocused ? 1 : 0.06;
+        const targetEmissive = isFocused ? 0.35 : 0.02;
+        
+        gsap.to(p.material, { opacity: targetOpacity, emissiveIntensity: targetEmissive, duration: 1.3 });
+        if (p.atmosphere) {
+          gsap.to(p.atmosphere.material, { opacity: isFocused ? 0.25 : 0.03, duration: 1.3 });
+        }
+        p.moons.forEach(m => {
+          gsap.to(m.material, { opacity: isFocused ? 1 : 0.06, emissiveIntensity: isFocused ? 0.45 : 0.04, duration: 1.3 });
+          if (m.glow) {
+            gsap.to(m.glow.material, { opacity: isFocused ? 0.45 : 0.04, duration: 1.3 });
+          }
+        });
+      });
+
+      const planet = planets[planetIndex].mesh;
+      const targetPos = planet.position.clone();
+      const offset = new THREE.Vector3(22, 18, 22);
+      
+      gsap.to(camera.position, {
+        x: targetPos.x + offset.x, y: targetPos.y + offset.y, z: targetPos.z + offset.z,
+        duration: 2.8, ease: "power2.inOut", onUpdate: () => controls.update()
+      });
+      gsap.to(controls.target, {
+        x: targetPos.x, y: targetPos.y, z: targetPos.z,
+        duration: 2.8, ease: "power2.inOut"
+      });
+    }
+
+    function resetFocus() {
+      focusedPlanetIndex = null;
+      backBtn.classList.remove('visible');
+      controlsHint.style.opacity = '1';
+
+      planets.forEach(p => {
+        gsap.to(p.material, { opacity: 1, emissiveIntensity: 0.35, duration: 1.3 });
+        if (p.atmosphere) {
+          gsap.to(p.atmosphere.material, { opacity: 0.25, duration: 1.3 });
+        }
+        p.moons.forEach(m => {
+          gsap.to(m.material, { opacity: 1, emissiveIntensity: 0.45, duration: 1.3 });
+          if (m.glow) {
+            gsap.to(m.glow.material, { opacity: 0.45, duration: 1.3 });
+          }
+        });
+      });
+
+      gsap.to(camera.position, { x: 0, y: 80, z: 120, duration: 2.8, ease: "power2.inOut", onUpdate: () => controls.update() });
+      gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2.8, ease: "power2.inOut" });
+    }
+
+    backBtn.addEventListener('click', resetFocus);
+    backBtn.addEventListener('touchend', (e) => { e.preventDefault(); resetFocus(); });
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let hoveredMoon = null;
+    const hudTooltip = document.getElementById('hudTooltip');
+    let isHoveringTooltip = false;
+    
+    let lastTouchTime = 0;
+    let lastTouchedObject = null;
+
+    hudTooltip.addEventListener('mouseenter', () => { isHoveringTooltip = true; });
+    hudTooltip.addEventListener('mouseleave', () => { 
+      isHoveringTooltip = false; 
+      if (!hoveredMoon) hudTooltip.classList.remove('active');
+    });
+    hudTooltip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (hoveredMoon) {
+        showToolModal(hoveredMoon.userData.tool, hoveredMoon.userData.domain);
+      }
+    });
+    hudTooltip.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (hoveredMoon) {
+        showToolModal(hoveredMoon.userData.tool, hoveredMoon.userData.domain);
+      }
+    });
+
+    function getEventPosition(event) {
+      if (event.touches && event.touches.length > 0) {
+        return { x: event.touches[0].clientX, y: event.touches[0].clientY };
+      }
+      return { x: event.clientX, y: event.clientY };
+    }
+
+    function handleInteraction(event) {
+      const pos = getEventPosition(event);
+      mouse.x = (pos.x / window.innerWidth) * 2 - 1;
+      mouse.y = -(pos.y / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      
+      const visibleMoons = focusedPlanetIndex !== null 
+        ? planets[focusedPlanetIndex].moons.map(m => m.mesh)
+        : moons.map(m => m.mesh);
+
+      const intersects = raycaster.intersectObjects(visibleMoons);
+
+      if (intersects.length > 0) {
+        const intersected = intersects[0].object;
+        if (hoveredMoon !== intersected) {
+          if (hoveredMoon) {
+            hoveredMoon.scale.set(1, 1, 1);
+            hoveredMoon.material.emissiveIntensity = 0.45;
+          }
+          hoveredMoon = intersected;
+          hoveredMoon.scale.set(1.5, 1.5, 1.5);
+          hoveredMoon.material.emissiveIntensity = 1.2;
+          
+          const tool = hoveredMoon.userData.tool;
+          document.getElementById('hudTitle').textContent = tool.name;
+          document.getElementById('hudLicense').textContent = tool.license;
+          document.getElementById('hudDifficulty').textContent = tool.difficulty.charAt(0).toUpperCase() + tool.difficulty.slice(1);
+          hudTooltip.classList.add('active');
+          document.body.style.cursor = isTouchDevice ? 'default' : 'pointer';
+        }
+      } else {
+        if (!isHoveringTooltip) {
+          if (hoveredMoon) {
+            hoveredMoon.scale.set(1, 1, 1);
+            hoveredMoon.material.emissiveIntensity = 0.45;
+            hoveredMoon = null;
+            hudTooltip.classList.remove('active');
+            document.body.style.cursor = 'default';
+          }
+        }
+      }
+    }
+
+    function handleSelect(event) {
+      if (event.target.closest('.modal') || event.target.closest('.hud-tooltip')) return;
+
+      const pos = getEventPosition(event);
+      mouse.x = (pos.x / window.innerWidth) * 2 - 1;
+      mouse.y = -(pos.y / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      
+      const planetMeshes = planets.map(p => p.mesh);
+      const allMoons = moons.map(m => m.mesh);
+      const intersects = raycaster.intersectObjects([...planetMeshes, ...allMoons]);
+
+      if (intersects.length > 0) {
+        const obj = intersects[0].object;
+        const currentTime = Date.now();
+        
+        if (lastTouchedObject === obj && (currentTime - lastTouchTime) < 350) {
+          if (obj.userData.type === 'moon') {
+            showToolModal(obj.userData.tool, obj.userData.domain);
+          } else if (obj.userData.type === 'planet' && focusedPlanetIndex === null) {
+            setFocus(obj.userData.index);
+          }
+          lastTouchedObject = null;
+        } else {
+          lastTouchedObject = obj;
+        }
+        lastTouchTime = currentTime;
+      }
+    }
+
+    if (!isTouchDevice) {
+      window.addEventListener('mousemove', handleInteraction);
+      window.addEventListener('click', handleSelect);
+    }
+    
+    window.addEventListener('touchstart', (e) => {
+      handleInteraction(e);
+      if (e.target.closest('#canvas-container') || e.target.closest('.hud-tooltip')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    window.addEventListener('touchend', (e) => {
+      handleSelect(e);
+    }, { passive: false });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      resizeNebula();
+    });
+
+    document.addEventListener('keydown', (e) => { 
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        modal.classList.remove('active');
+      }
+    });
+
+    const quotes = [
+      '"Open source is the only way to audit what you run."',
+      '"Transparency isn\'t a feature — it\'s a requirement."',
+      '"Your data, your rules — not a vendor\'s."',
+      '"Community-driven code outlasts corporate roadmaps."'
+    ];
+    let quoteIdx = 0;
+    setInterval(() => { 
+      quoteIdx = (quoteIdx + 1) % quotes.length; 
+      document.getElementById('quote').textContent = quotes[quoteIdx]; 
+    }, 5000);
+
+    const modal = document.getElementById('modal');
+    const closeModal = document.getElementById('closeModal');
+
+    function showToolModal(tool, domain) {
+      document.getElementById('modalTitle').textContent = tool.name;
+      document.getElementById('modalDesc').textContent = tool.desc;
+      document.getElementById('modalLicense').textContent = tool.license;
+      document.getElementById('modalDomain').textContent = domain.name;
+      document.getElementById('modalAlt').textContent = tool.alt;
+      document.getElementById('modalTip').textContent = tool.tip;
+      document.getElementById('modalLink').href = tool.link;
+
+      const diffBar = document.getElementById('difficultyBar');
+      const diffText = document.getElementById('modalDifficulty');
+      
+      if (tool.difficulty === 'easy') {
+        diffBar.className = 'difficulty-fill easy'; diffBar.style.width = '30%';
+        diffText.textContent = 'Easy'; diffText.style.color = '#10b981';
+      } else if (tool.difficulty === 'medium') {
+        diffBar.className = 'difficulty-fill medium'; diffBar.style.width = '60%';
+        diffText.textContent = 'Medium'; diffText.style.color = '#f59e0b';
+      } else {
+        diffBar.className = 'difficulty-fill hard'; diffBar.style.width = '90%';
+        diffText.textContent = 'Hard'; diffText.style.color = '#ef4444';
+      }
+
+      modal.classList.add('active');
+    }
+
+    closeModal.addEventListener('click', () => modal.classList.remove('active'));
+    closeModal.addEventListener('touchend', (e) => { e.preventDefault(); modal.classList.remove('active'); });
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+    modal.addEventListener('touchend', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+
+    const clock = new THREE.Clock();
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+      
+      sun.rotation.y = elapsed * 0.03;
+      sunGlows.forEach((glow, i) => {
+        const pulse = 1 + Math.sin(elapsed * glow.userData.pulseSpeed + glow.userData.pulsePhase) * 0.05;
+        glow.scale.setScalar(glow.userData.baseScale * pulse);
+      });
+      
+      planets.forEach((planet) => { 
+        planet.mesh.rotation.y = elapsed * 0.03;
+        if (planet.atmosphere) {
+          const pulse = 0.25 + Math.sin(elapsed * planet.atmosphere.userData.pulseSpeed + planet.atmosphere.userData.pulsePhase) * 0.03;
+          planet.atmosphere.material.opacity = pulse;
+        }
+      });
+      
+      moons.forEach((moonData) => {
+        moonData.angle += moonData.orbitSpeed * 0.003;
+        moonData.mesh.position.x = Math.cos(moonData.angle) * moonData.orbitRadius;
+        moonData.mesh.position.z = Math.sin(moonData.angle) * moonData.orbitRadius;
+        
+        if (moonData.glow) {
+          const pulse = 0.45 + Math.sin(elapsed * moonData.glow.userData.pulseSpeed + moonData.glow.userData.pulsePhase) * 0.05;
+          moonData.glow.material.opacity = pulse;
+        }
+      });
+      
+      moonLabels.forEach(({ sprite, mesh }) => { sprite.lookAt(camera.position); });
+      sunSprite.lookAt(camera.position);
+
+      if (hoveredMoon && !isHoveringTooltip) {
+        const pos = hoveredMoon.position.clone();
+        pos.project(camera);
+        const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
+        const y = (-(pos.y * 0.5) + 0.5) * window.innerHeight;
+        hudTooltip.style.left = `${Math.min(x, window.innerWidth - 240)}px`;
+        hudTooltip.style.top = `${Math.min(y, window.innerHeight - 150)}px`;
+      }
+
+      starField.rotation.y = elapsed * 0.003;
+      
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        resizeNebula();
+      }, 300);
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      if (e.scale !== 1) e.preventDefault();
+    }, { passive: false });
+
+    function hideLoadingScreen() {
+      const loading = document.getElementById('loading');
+      if (loading && !loading.classList.contains('hidden')) {
+        loading.classList.add('hidden');
+      }
+    }
+
+    window.addEventListener('load', () => { 
+      setTimeout(hideLoadingScreen, 1200); 
+    });
+
+    setTimeout(() => {
+      hideLoadingScreen();
+    }, 3000);
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(hideLoadingScreen, 1200);
+    }
+    
+    animate();
+  </script>
+</body>
+</html>
