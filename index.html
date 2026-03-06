@@ -435,12 +435,264 @@
       z-index: 1;
       opacity: 0.4;
     }
+
+    /* Feature Panel Buttons */
+    .feature-panel {
+      position: fixed;
+      bottom: clamp(5rem, 10vw, 6rem);
+      right: clamp(1rem, 3vw, 2rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      z-index: 150;
+    }
+
+    .feature-btn {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #60a5fa;
+      padding: clamp(0.6rem, 2.5vw, 0.75rem) clamp(1rem, 3vw, 1.25rem);
+      border-radius: 8px;
+      font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s;
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .feature-btn:hover, .feature-btn:active {
+      background: rgba(59, 130, 246, 0.3);
+      border-color: #3b82f6;
+      transform: translateX(-2px);
+    }
+
+    .feature-btn.active {
+      background: rgba(59, 130, 246, 0.4);
+      border-color: #3b82f6;
+    }
+
+    /* Feature Modals */
+    .feature-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(15px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: clamp(1rem, 3vw, 2rem);
+    }
+
+    .feature-modal.active {
+      display: flex;
+    }
+
+    .feature-modal-content {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      border: 1px solid #333;
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+      border-radius: 12px;
+      max-width: 600px;
+      width: 95%;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8);
+      animation: slideUp 0.3s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .feature-title {
+      color: #3b82f6;
+      font-size: clamp(1.3rem, 4vw, 1.75rem);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Password Checker Styles */
+    .password-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .password-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #333;
+      color: #e5e5e5;
+      padding: clamp(0.75rem, 2.5vw, 1rem);
+      border-radius: 8px;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+      font-family: 'Inter', sans-serif;
+      min-height: 48px;
+    }
+
+    .password-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .password-result {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .password-result.safe {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid #10b981;
+      color: #10b981;
+      display: block;
+    }
+
+    .password-result.compromised {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+      display: block;
+    }
+
+    .security-note {
+      font-size: clamp(0.75rem, 2.5vw, 0.85rem);
+      color: #666;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      border-left: 3px solid #3b82f6;
+    }
+
+    /* Alternative Finder Styles */
+    .search-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-input {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #333;
+      color: #e5e5e5;
+      padding: clamp(0.75rem, 2.5vw, 1rem);
+      border-radius: 8px;
+      font-size: clamp(0.9rem, 3vw, 1rem);
+      font-family: 'Inter', sans-serif;
+      min-height: 48px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .search-result-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid #222;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .search-result-item.found {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .result-name {
+      color: #10b981;
+      font-weight: 600;
+      font-size: clamp(1rem, 3vw, 1.1rem);
+      margin-bottom: 0.5rem;
+    }
+
+    .result-desc {
+      color: #999;
+      font-size: clamp(0.85rem, 2.8vw, 0.9rem);
+      line-height: 1.6;
+    }
+
+    .result-alt {
+      color: #f59e0b;
+      font-size: clamp(0.8rem, 2.5vw, 0.85rem);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .no-results {
+      color: #666;
+      text-align: center;
+      padding: 2rem;
+      display: none;
+    }
+
+    .no-results.show {
+      display: block;
+    }
+
+    /* Spaceship Mode Indicator */
+    .spaceship-indicator {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 50;
+      display: none;
+      opacity: 0.3;
+    }
+
+    .spaceship-indicator.active {
+      display: block;
+    }
+
+    .spaceship-hud {
+      position: fixed;
+      bottom: clamp(8rem, 15vw, 10rem);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 0.5rem 1.5rem;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      color: #60a5fa;
+      z-index: 150;
+      display: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .spaceship-hud.active {
+      display: block;
+    }
   </style>
 </head>
 <body>
 
   <div class="loading" id="loading">
-    <div class="loading-text">Initializing Living Cosmos...</div>
+    <div class="loading-text">Initializing xAtlas Galaxy...</div>
   </div>
 
   <canvas id="nebula-canvas"></canvas>
@@ -470,6 +722,16 @@
 
   <div class="controls-hint" id="controlsHint">
     🖱️ Double-click/Tap planet to focus • Double-tap tools for info • Pinch to zoom • Drag to rotate
+  </div>
+
+  <div class="spaceship-hud" id="spaceshipHud">
+    🚀 Spaceship Mode: W/S = Forward/Back • A/D = Left/Right • Q/E = Down/Up
+  </div>
+
+  <div class="feature-panel">
+    <button class="feature-btn" id="spaceshipBtn">🚀 Ship Mode</button>
+    <button class="feature-btn" id="passwordBtn">🔐 Password Check</button>
+    <button class="feature-btn" id="altFinderBtn">🤖 Find Alternatives</button>
   </div>
 
   <div class="modal" id="modal">
@@ -506,6 +768,48 @@
       <p style="color:#666;font-size:0.85rem;margin-bottom:1.5rem;" id="modalTip">Tip goes here.</p>
 
       <a href="#" class="link-btn" id="modalLink" target="_blank">Visit Official Site</a>
+    </div>
+  </div>
+
+  <div class="feature-modal" id="passwordModal">
+    <div class="feature-modal-content">
+      <span class="close-btn" id="closePasswordModal">&times;</span>
+      <h2 class="feature-title">🔐 Password Leak Checker</h2>
+      <p style="color:#999;margin-bottom:1.5rem;font-size:0.95rem;">Check if your password has appeared in known data breaches. Your password is hashed locally and never sent in plain text.</p>
+      
+      <div class="password-input-group">
+        <input type="password" class="password-input" id="passwordInput" placeholder="Enter password to check..." />
+        <button class="link-btn" id="checkPasswordBtn">Check Password</button>
+      </div>
+
+      <div class="password-result" id="passwordResult"></div>
+
+      <div class="security-note">
+        <strong>🔒 Security Note:</strong> This uses the Have I Been Pwned k-anonymity model. Only the first 5 characters of your password's SHA-1 hash are sent to the API. Your actual password never leaves this device.
+      </div>
+    </div>
+  </div>
+
+  <div class="feature-modal" id="altFinderModal">
+    <div class="feature-modal-content">
+      <span class="close-btn" id="closeAltModal">&times;</span>
+      <h2 class="feature-title">🤖 Open Source Alternative Finder</h2>
+      <p style="color:#999;margin-bottom:1.5rem;font-size:0.95rem;">Enter a proprietary tool name to find open source alternatives.</p>
+      
+      <div class="search-input-group">
+        <input type="text" class="search-input" id="searchInput" placeholder="e.g., AnyDesk, Photoshop, Microsoft Office..." />
+      </div>
+
+      <div class="search-results" id="searchResults">
+        <div class="search-result-item" id="resultItem">
+          <div class="result-name" id="resultName"></div>
+          <div class="result-desc" id="resultDesc"></div>
+          <div class="result-alt" id="resultAlt"></div>
+        </div>
+        <div class="no-results" id="noResults">
+          No alternatives found. Try searching for: AnyDesk, Photoshop, Microsoft Office, Slack, Zoom, Dropbox, etc.
+        </div>
+      </div>
     </div>
   </div>
 
@@ -549,6 +853,26 @@
           { id: 'dbt', name: 'dbt (data build tool)', desc: 'Transformation workflow for analytics engineering.', license: 'Apache-2.0', alt: 'Dataform', difficulty: 'easy', tip: 'Use dbt models for version-controlled SQL transformations.', link: 'https://getdbt.com', orbitRadius: 8, orbitSpeed: 0.8 }
         ]}
       ]
+    };
+
+    const alternativesDatabase = {
+      'anydesk': { name: 'RustDesk', desc: 'Full-featured open source remote desktop software. Self-hostable, encrypted, and cross-platform.', alt: 'Proprietary: AnyDesk, TeamViewer' },
+      'teamviewer': { name: 'RustDesk', desc: 'Full-featured open source remote desktop software. Self-hostable, encrypted, and cross-platform.', alt: 'Proprietary: AnyDesk, TeamViewer' },
+      'photoshop': { name: 'GIMP', desc: 'GNU Image Manipulation Program. Professional-grade image editing with extensive plugin support.', alt: 'Proprietary: Adobe Photoshop' },
+      'illustrator': { name: 'Inkscape', desc: 'Professional vector graphics editor. SVG-native with extensive drawing tools.', alt: 'Proprietary: Adobe Illustrator' },
+      'microsoft office': { name: 'LibreOffice', desc: 'Full-featured office suite with Writer, Calc, Impress, and more. Compatible with Microsoft Office formats.', alt: 'Proprietary: Microsoft Office' },
+      'word': { name: 'LibreOffice Writer', desc: 'Full-featured word processor. Compatible with .docx and .doc formats.', alt: 'Proprietary: Microsoft Word' },
+      'excel': { name: 'LibreOffice Calc', desc: 'Powerful spreadsheet application with pivot tables, charts, and macros.', alt: 'Proprietary: Microsoft Excel' },
+      'slack': { name: 'Mattermost', desc: 'Open source team collaboration platform. Slack-compatible with self-hosting option.', alt: 'Proprietary: Slack, Microsoft Teams' },
+      'zoom': { name: 'Jitsi Meet', desc: 'Fully encrypted video conferencing. No account required, browser-based.', alt: 'Proprietary: Zoom, Microsoft Teams' },
+      'dropbox': { name: 'Syncthing', desc: 'Continuous file synchronization. Peer-to-peer, encrypted, no cloud required.', alt: 'Proprietary: Dropbox, Google Drive' },
+      'notion': { name: 'AppFlowy', desc: 'Open source alternative to Notion. Build your own productivity workspace.', alt: 'Proprietary: Notion' },
+      'premiere': { name: 'DaVinci Resolve', desc: 'Professional video editing, color correction, and audio post-production.', alt: 'Proprietary: Adobe Premiere Pro' },
+      'lightroom': { name: 'Darktable', desc: 'Photography workflow application and raw developer. Non-destructive editing.', alt: 'Proprietary: Adobe Lightroom' },
+      'sketch': { name: 'Figma', desc: 'Collaborative interface design tool. Free tier available.', alt: 'Proprietary: Sketch, Adobe XD' },
+      'vmware': { name: 'VirtualBox', desc: 'General-purpose full virtualization for x86 hardware. Guest additions available.', alt: 'Proprietary: VMware, Parallels' },
+      'windows': { name: 'Linux (Ubuntu/Fedora)', desc: 'Open source operating system. Thousands of distributions available.', alt: 'Proprietary: Microsoft Windows' },
+      'macos': { name: 'Linux (elementary OS)', desc: 'Beautiful, macOS-like Linux distribution. Privacy-focused.', alt: 'Proprietary: Apple macOS' }
     };
 
     const scene = new THREE.Scene();
@@ -941,7 +1265,7 @@
     }
 
     function handleSelect(event) {
-      if (event.target.closest('.modal') || event.target.closest('.hud-tooltip')) return;
+      if (event.target.closest('.modal') || event.target.closest('.hud-tooltip') || event.target.closest('.feature-modal')) return;
 
       const pos = getEventPosition(event);
       mouse.x = (pos.x / window.innerWidth) * 2 - 1;
@@ -994,8 +1318,10 @@
     });
 
     document.addEventListener('keydown', (e) => { 
-      if (e.key === 'Escape' && modal.classList.contains('active')) {
-        modal.classList.remove('active');
+      if (e.key === 'Escape') {
+        if (modal.classList.contains('active')) modal.classList.remove('active');
+        if (passwordModal.classList.contains('active')) passwordModal.classList.remove('active');
+        if (altFinderModal.classList.contains('active')) altFinderModal.classList.remove('active');
       }
     });
 
@@ -1045,11 +1371,208 @@
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
     modal.addEventListener('touchend', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
+    const passwordModal = document.getElementById('passwordModal');
+    const passwordBtn = document.getElementById('passwordBtn');
+    const closePasswordModal = document.getElementById('closePasswordModal');
+    const passwordInput = document.getElementById('passwordInput');
+    const checkPasswordBtn = document.getElementById('checkPasswordBtn');
+    const passwordResult = document.getElementById('passwordResult');
+
+    passwordBtn.addEventListener('click', () => {
+      passwordModal.classList.add('active');
+    });
+
+    closePasswordModal.addEventListener('click', () => {
+      passwordModal.classList.remove('active');
+      passwordResult.className = 'password-result';
+      passwordResult.textContent = '';
+      passwordInput.value = '';
+    });
+
+    passwordModal.addEventListener('click', (e) => {
+      if (e.target === passwordModal) {
+        passwordModal.classList.remove('active');
+        passwordResult.className = 'password-result';
+        passwordResult.textContent = '';
+        passwordInput.value = '';
+      }
+    });
+
+    async function checkPasswordLeak(password) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(password);
+      const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+      
+      const prefix = hashHex.substring(0, 5);
+      const suffix = hashHex.substring(5);
+      
+      try {
+        const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+        const data = await response.text();
+        const lines = data.split('\n');
+        
+        for (const line of lines) {
+          const [hashSuffix, count] = line.trim().split(':');
+          if (hashSuffix.toUpperCase() === suffix) {
+            return { compromised: true, count: parseInt(count) };
+          }
+        }
+        
+        return { compromised: false, count: 0 };
+      } catch (error) {
+        console.error('Password check failed:', error);
+        return { error: true };
+      }
+    }
+
+    checkPasswordBtn.addEventListener('click', async () => {
+      const password = passwordInput.value.trim();
+      if (!password) {
+        passwordResult.className = 'password-result compromised';
+        passwordResult.textContent = '⚠️ Please enter a password to check.';
+        return;
+      }
+
+      checkPasswordBtn.textContent = 'Checking...';
+      checkPasswordBtn.disabled = true;
+
+      const result = await checkPasswordLeak(password);
+
+      checkPasswordBtn.textContent = 'Check Password';
+      checkPasswordBtn.disabled = false;
+
+      if (result.error) {
+        passwordResult.className = 'password-result compromised';
+        passwordResult.textContent = '❌ Unable to check. Please try again later.';
+      } else if (result.compromised) {
+        passwordResult.className = 'password-result compromised';
+        passwordResult.textContent = `❌ COMPROMISED: This password has appeared in ${result.count.toLocaleString()} known data breaches. Change it immediately!`;
+      } else {
+        passwordResult.className = 'password-result safe';
+        passwordResult.textContent = '✅ SAFE: This password has not been found in known data breaches.';
+      }
+    });
+
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        checkPasswordBtn.click();
+      }
+    });
+
+    const altFinderModal = document.getElementById('altFinderModal');
+    const altFinderBtn = document.getElementById('altFinderBtn');
+    const closeAltModal = document.getElementById('closeAltModal');
+    const searchInput = document.getElementById('searchInput');
+    const resultItem = document.getElementById('resultItem');
+    const noResults = document.getElementById('noResults');
+
+    altFinderBtn.addEventListener('click', () => {
+      altFinderModal.classList.add('active');
+    });
+
+    closeAltModal.addEventListener('click', () => {
+      altFinderModal.classList.remove('active');
+      searchInput.value = '';
+      resultItem.classList.remove('found');
+      noResults.classList.remove('show');
+    });
+
+    altFinderModal.addEventListener('click', (e) => {
+      if (e.target === altFinderModal) {
+        altFinderModal.classList.remove('active');
+        searchInput.value = '';
+        resultItem.classList.remove('found');
+        noResults.classList.remove('show');
+      }
+    });
+
+    function findAlternative(query) {
+      const normalizedQuery = query.toLowerCase().trim();
+      
+      for (const [key, value] of Object.entries(alternativesDatabase)) {
+        if (normalizedQuery.includes(key) || key.includes(normalizedQuery)) {
+          return { found: true, ...value };
+        }
+      }
+      
+      return { found: false };
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.trim();
+      
+      if (!query) {
+        resultItem.classList.remove('found');
+        noResults.classList.remove('show');
+        return;
+      }
+
+      const result = findAlternative(query);
+      
+      if (result.found) {
+        document.getElementById('resultName').textContent = result.name;
+        document.getElementById('resultDesc').textContent = result.desc;
+        document.getElementById('resultAlt').textContent = result.alt;
+        resultItem.classList.add('found');
+        noResults.classList.remove('show');
+      } else {
+        resultItem.classList.remove('found');
+        noResults.classList.add('show');
+      }
+    });
+
+    let spaceshipMode = false;
+    const spaceshipBtn = document.getElementById('spaceshipBtn');
+    const spaceshipHud = document.getElementById('spaceshipHud');
+    const keysPressed = {};
+
+    spaceshipBtn.addEventListener('click', () => {
+      spaceshipMode = !spaceshipMode;
+      spaceshipBtn.classList.toggle('active', spaceshipMode);
+      spaceshipHud.classList.toggle('active', spaceshipMode);
+      
+      if (spaceshipMode) {
+        controls.enabled = false;
+        controlsHint.style.opacity = '0';
+      } else {
+        controls.enabled = true;
+        controlsHint.style.opacity = '1';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      keysPressed[e.key.toLowerCase()] = true;
+    });
+
+    document.addEventListener('keyup', (e) => {
+      keysPressed[e.key.toLowerCase()] = false;
+    });
+
+    function updateSpaceshipMovement() {
+      if (!spaceshipMode) return;
+
+      const speed = 0.8;
+      const moveSpeed = spaceshipMode ? speed : 0;
+
+      if (keysPressed['w']) camera.position.z -= moveSpeed;
+      if (keysPressed['s']) camera.position.z += moveSpeed;
+      if (keysPressed['a']) camera.position.x -= moveSpeed;
+      if (keysPressed['d']) camera.position.x += moveSpeed;
+      if (keysPressed['q']) camera.position.y -= moveSpeed;
+      if (keysPressed['e']) camera.position.y += moveSpeed;
+
+      controls.target.copy(camera.position.clone().add(new THREE.Vector3(0, 0, -50)));
+    }
+
     const clock = new THREE.Clock();
     
     function animate() {
       requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
+      
+      updateSpaceshipMovement();
       
       sun.rotation.y = elapsed * 0.03;
       sunGlows.forEach((glow, i) => {
